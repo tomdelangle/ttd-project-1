@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- leaflet css -->
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+    />
+
+    <!-- markercluster  -->
+    <link rel="stylesheet" href="./dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="./dist/MarkerCluster.Default.css" />
+
+    <!-- Tagify -->
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+
+    <!-- Materialize -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+
+    <!-- Papaparse -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+
+    <title>DOOH planning tool</title>
+    <style>
+      body {
+        margin: 0px;
+        padding: 0px;
+      }
+
+      #overlay {
+        position: absolute;
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        left: 0;
+        margin: 10px;
+        border-radius: 10px;
+        min-height: 200px;
+        width: 30%;
+      }
+
+      .ui-div {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .tab {
+        width: 50%;
+      }
+
+      #map {
+        width: 100%;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="overlay">
+      <ul class="tabs">
+        <li class="tab col s6">
+          <a class="active" href="#tab1" onclick="clearFiltersPlaces()"
+            >Places</a
+          >
+        </li>
+        <li class="tab col s6">
+          <a href="#tab2" onclick="clearFiltersGPS()">GPS list</a>
+        </li>
+      </ul>
+      <div id="tab1" class="col s12">
+        <div class="city-div ui-div">
+          <label for="city-input">City</label>
+          <input id="city-input" name="city-input" type="text" />
+        </div>
+        <div class="SSP-div ui-div">
+          <label for="SSP-input">SSP</label>
+          <input id="SSP-input" name="SSP-input" type="text" />
+        </div>
+        <button id="validate-button" onclick="validateQuery()" disabled>
+          Validate Query
+        </button>
+        <button id="clear-filter-button" onclick="clearGeoJSONPlacesFilters()">
+          Clear filters
+        </button>
+      </div>
+      <div id="tab2" class="col s12">
+        <form>
+          <input type="file" id="fileInput" accept=".csv" />
+          <button type="submit" id="submit-gps">Submit</button>
+        </form>
+        <button id="clear-filter-button" onclick="clearGPSLayer()">
+          Clear filters
+        </button>
+      </div>
+    </div>
+    <div id="map"></div>
+  </body>
+</html>
+
+<!-- geojson data  -->
+<script src="./data.js"></script>
+
+<!-- leaflet js  -->
+<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
+
+<!-- markercluster  -->
+<script src="./dist/leaflet.markercluster.js"></script>
+
+<!-- turf.js -->
+<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    let tabs = document.querySelectorAll(".tabs");
+    M.Tabs.init(tabs);
+  });
+
+  var cityArray = [];
+  var SSPArray = [];
+
+  var cityInput = document.getElementById("city-input");
+  var SSPInput = document.getElementById("SSP-input");
+  var validateButton = document.getElementById("validate-button");
+
+  data["features"].forEach((element) => {
+    cityArray.push(element.properties.City);
+    SSPArray.push(element.properties.SSP);
+  });
+
+  var uniqueCityArray = [...new Set(cityArray)];
+  var uniqueSSPArray = [...new Set(SSPArray)];
+
+  var cityTagify = createTagify(cityInput, uniqueCityArray);
+  var SSPTagify = createTagify(SSPInput, uniqueSSPArray);
+
+  const map = L.map("map", { zoomControl: false }).setView(
+    [47.08281526433862, 2.0891906387845722],
+    6
+  );
+
+  const osm = L.tileLayer(
+    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+    { maxZoom: 19 }
+  ).addTo(map);
+
+  const geojsonMarkerOptions = {
+    radius: 8,
+    fillColor: "#ff7800",
+    color: "#000",
+    weight: 1,
+    opacity: 1,
+    fillOpacity: 0.8,
+  };
+
+  const geoJsonLayer = L.geoJSON(data, {
+    onEachFeature: popUpStyle,
+    pointToLayer: pointToLayer,
+  });
+  const clusterMarkers = L.markerClusterGroup().addLayer(geoJsonLayer);
+
+  var layerDataFromSheet = L.layerGroup();
+
+  map.addLayer(clusterMarkers);
+  map.addLayer(layerDataFromSheet);
+
+  function popUpStyle(feature, layer) {
+    const popupContent =
+      '<h4 class = "text-primary">Street Light</h4>' +
+      '<div class="container"><table class="table table-striped">' +
+      "<thead><tr><th>Properties</th><th>Value</th></tr></thead>" +
+      "<tbody><tr><td> Name </td><td>" +
+      feature.properties.Name +
+      "</td></tr>" +
+      "<tr><td>Elevation </td><td>" +
+      feature.properties.ele +
+      "</td></tr>" +
+      "<tr><td> Power (watt) </td><td>" +
+      feature.properties.Power_Watt +
+      "</td></tr>" +
+      "<tr><td> Pole Height </td><td>" +
+      feature.properties.pole_hgt +
+      "</td></tr>" +
+      "<tr><td> Time </td><td>" +
+      feature.properties.time +
+      "</td></tr>";
+
+    layer.bindPopup(popupContent);
+  }
+
+  function pointToLayer(feature, latlng) {
+    return L.circleMarker(latlng, geojsonMarkerOptions);
+  }
+
+  function createTagify(inputToTagify, whitelistToSearch) {
+    var tagify = new Tagify(inputToTagify, {
+      whitelist: whitelistToSearch,
+      dropdown: {
+        classname: "color-blue",
+        enabled: 1, // show the dropdown immediately on focus
+        position: "all", // place the dropdown near the typed text
+        closeOnSelect: true, // keep the dropdown open after selecting a suggestion
+      },
+    });
+
+    return tagify;
+  }
+
+  function validateQuery() {
+    clusterMarkers.removeLayer(geoJsonLayer);
+
+    if (cityTagify.value != "") {
+      console.log("in the city");
+
+      for (i = 0; i < cityTagify.value.length; i++) {
+        geoJsonLayer.eachLayer(function (layer) {
+          if (
+            layer.feature.properties.City.toLowerCase() ==
+            cityTagify.value[i].value.toLowerCase()
+          ) {
+            clusterMarkers.addLayer(layer);
+          }
+        });
+      }
+    } else {
+      clusterMarkers.addLayer(geoJsonLayer);
+    }
+
+    if (SSPTagify.value != "") {
+      for (i = 0; i < SSPTagify.value.length; i++) {
+        clusterMarkers.eachLayer(function (layer) {
+          console.log(layer);
+
+          if (
+            layer.feature.properties.SSP.toLowerCase() !==
+            SSPTagify.value[i].value.toLowerCase()
+          ) {
+            clusterMarkers.removeLayer(layer);
+          }
+        });
+      }
+    }
+  }
+
+  function clearFiltersPlaces() {
+    clusterMarkers.addLayer(geoJsonLayer);
+    layerDataFromSheet.eachLayer(function (layer) {
+      layerDataFromSheet.removeLayer(layer);
+    });
+    fileInput.value = "";
+    map.setView([47.08281526433862, 2.0891906387845722], 6);
+  }
+
+  function clearFiltersGPS() {
+    clusterMarkers.removeLayer(geoJsonLayer);
+    cityTagify.removeAllTags();
+    SSPTagify.removeAllTags();
+    map.setView([47.08281526433862, 2.0891906387845722], 6);
+  }
+
+  function clearGeoJSONPlacesFilters() {
+    clusterMarkers.removeLayer(geoJsonLayer);
+    clusterMarkers.addLayer(geoJsonLayer);
+    cityTagify.removeAllTags();
+    SSPTagify.removeAllTags();
+    map.setView([47.08281526433862, 2.0891906387845722], 6);
+  }
+
+  function clearGPSLayer() {
+    layerDataFromSheet.eachLayer(function (layer) {
+      layerDataFromSheet.removeLayer(layer);
+    });
+    fileInput.value = "";
+    map.setView([47.08281526433862, 2.0891906387845722], 6);
+  }
+
+  cityTagify.on("change", checkInputs);
+  SSPTagify.on("change", checkInputs);
+
+  function checkInputs() {
+    if (cityTagify.value != "" || SSPTagify.value != "") {
+      validateButton.disabled = false;
+    } else if (cityTagify.value == "" && SSPTagify.value == "") {
+      validateButton.disabled = true;
+    }
+  }
+
+  const submitGPS = document.getElementById("submit-gps");
+  const fileInput = document.getElementById("fileInput");
+
+  submitGPS.addEventListener("click", function () {
+    layerDataFromSheet.eachLayer(function (layer) {
+      layerDataFromSheet.removeLayer(layer);
+    });
+
+    map.setView([47.08281526433862, 2.0891906387845722], 6);
+
+    const file = fileInput.files[0];
+
+    !file && alert("Please select a file.");
+
+    const reader = new FileReader();
+
+    reader.readAsText(file);
+
+    reader.onload = function () {
+      const csv = reader.result;
+
+      var test = Papa.parse(csv, {
+        header: true,
+        dynamicTyping: true,
+      });
+
+      var dataFromSheet = test.data;
+
+      /*
+        var geojson = {
+
+            type: "FeatureCollection",
+            features: test.data.map(function (point) {
+                
+                latLongFromDataSheet.push(point.coordinates)
+                
+                return {
+                    type: "Feature",
+                    geometry: {
+                        type: "Point",
+                        coordinates: [point.Longitude, point.Latitude],
+                    },
+                    properties: {"Radius (meters)": point["Radius (meters)"]}
+                };
+            }),
+        };
+        */
+
+      var turfDistanceOptions = { units: "meters" };
+
+      dataFromSheet.forEach((point) => {
+        L.marker([point.Latitude, point.Longitude]).addTo(layerDataFromSheet);
+        L.circle([point.Latitude, point.Longitude], {
+          radius: point["Radius (meters)"],
+          fillColor: "blue",
+          fillOpacity: 0.1,
+        }).addTo(layerDataFromSheet);
+
+        var pointTurfFrom = turf.point([point.Latitude, point.Longitude]);
+
+        var cluster = L.markerClusterGroup();
+
+        var addedPoints = new Set();
+
+        geoJsonLayer.eachLayer(function (layer) {
+          var pointTurfTo = turf.point([
+            layer.feature.geometry.coordinates[1],
+            layer.feature.geometry.coordinates[0],
+          ]);
+
+          var distance = turf.distance(
+            pointTurfFrom,
+            pointTurfTo,
+            turfDistanceOptions
+          );
+
+          if (distance < point["Radius (meters)"] && !addedPoints.has(layer)) {
+            cluster.addLayer(layer);
+            addedPoints.add(layer);
+          }
+        });
+
+        layerDataFromSheet.addLayer(cluster);
+      });
+    };
+
+    submitGPS.disabled = true;
+  });
+
+  fileInput.addEventListener("change", function () {
+    submitGPS.disabled = false;
+  });
+</script>
