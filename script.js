@@ -9,7 +9,6 @@ var SSPInput = document.getElementById("SSP-input");
 var publisherInput = document.getElementById("publisher-input");
 var venuTypeInput = document.getElementById("venue-type-input");
 var validateButton = document.getElementById("validate-button");
-var filePathWrapper = document.getElementById("input-file-path");
 var submitGPS = document.getElementById("submit-gps");
 var fileInput = document.getElementById("fileInput");
 var downloadCSVButton = document.getElementById("download-csv-button");
@@ -47,7 +46,7 @@ var venueTypeTagify = new Tagify(venuTypeInput, {
     dropdown: {
       maxItems: 20,           // <- mixumum allowed rendered suggestions
       enabled: 0,             // <- show suggestions on focus
-      closeOnSelect: false    // <- do not hide the suggestions dropdown once an item has been selected
+      closeOnSelect: true    // <- hide the suggestions dropdown once an item has been selected
     },
   });
 
@@ -58,6 +57,12 @@ const map = L.map("map", { zoomControl: false }).setView(
   [46.687697408786136, -1.5568386275056127],
   6
 );
+
+var zoomControl = L.control.zoom({
+  position: 'topright'
+});
+
+map.addControl(zoomControl);
 
 const osm = L.tileLayer( // osm is the map layer. More examples here : https://leaflet-extras.github.io/leaflet-providers/preview/
   "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
@@ -142,11 +147,10 @@ map.addLayer(layerDataFromSheet);
 
 // tagify function that generates inputs elements with smart search, tags etc...
 
-function createTagify(inputToTagify, whitelistToSearch,maxitems){
+function createTagify(inputToTagify, whitelistToSearch){
   var tagify = new Tagify(inputToTagify, {
     whitelist: whitelistToSearch,
     dropdown: {
-      maxItems: function(){maxitems ? maxitems : null},
       classname: "color-blue",
       enabled: 1, // show the dropdown immediately on focus
       position: "all", // place the dropdown near the typed text
@@ -159,6 +163,7 @@ function createTagify(inputToTagify, whitelistToSearch,maxitems){
 // Validate function when user click on VALIDATE QUERY button for city, partner, venue type etc...
 
 function validateQuery() {
+  map.setView([46.687697408786136, -1.5568386275056127],6)
   clusterMarkers.removeLayer(geoJsonLayer);
 
   if (cityTagify.value != "") {
@@ -276,6 +281,9 @@ function clearGPSLayer() {
   clusterMarkers.eachLayer(function (layer) {
     clusterMarkers.removeLayer(layer);
   });
+
+  fileInput.files = "";
+
   map.setView([46.687697408786136, -1.5568386275056127], 6);
 }
 
@@ -305,16 +313,9 @@ submitGPS.addEventListener("click", function () {
     clusterMarkers.removeLayer(layer);
   });
 
-  map.setView([47.08281526433862, 2.0891906387845722], 6);
-
   // getting the csv
 
   const file = fileInput.files[0];
-
-  if (!file) {
-    alert("Please select a file.");
-    return;
-  }
 
   const reader = new FileReader();
 
@@ -507,3 +508,13 @@ function arrayEquals(a, b) {
     a.every((val, index) => val === b[index])
   );
 }
+
+// checking if file input is empty on change -> if not : disable validate button (GPS list tab)
+
+fileInput.addEventListener("change", function() {
+  if (this.files.length > 0) {
+    submitGPS.disabled = false;
+  } else {
+    submitGPS.disabled = true;
+  }
+});
