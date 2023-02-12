@@ -1,4 +1,7 @@
-@import url(db.onlinewebfonts.com/c/b1e2fbe530d53d67ee41bdf6493f2b53?family=Eina);
+@font-face {
+  font-family: "Eina";
+  src: url("./fonts/eina/Eina02-Light.ttf");
+}
 
 * {
   font-family: "Eina";
