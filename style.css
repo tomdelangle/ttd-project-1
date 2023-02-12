@@ -1,0 +1,204 @@
+@import url(//db.onlinewebfonts.com/c/b1e2fbe530d53d67ee41bdf6493f2b53?family=Eina);
+
+* {
+  font-family: "Eina";
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+}
+
+.overlay {
+  position: absolute;
+  z-index: 1000;
+  background: rgba(255, 255, 255, 0.7);
+  padding: 10px;
+  left: 0;
+  margin: 10px;
+  border-radius: 10px;
+  min-height: 200px;
+  width: 30vw!important;
+}
+
+.dl-button {
+  position: absolute;
+  z-index: 1000;
+  right: 0;
+  bottom: 0;
+  padding: 0.5vw;
+  border-radius: 10px;
+  width: 10%;
+  height: 10%;
+  margin: 1vw;
+}
+
+.tab{
+    width:50%!important;
+}
+
+.tabs{
+    overflow: hidden!important;
+}
+
+
+.ui-div {
+  display: flex;
+  flex-direction: column;
+}
+
+#map {
+  width: 100%;
+  height: 100vh;
+}
+
+.col {
+  background-color: white;
+  padding: 4%;
+}
+
+.tabs .tab a:hover {
+  background-color: transparent;
+  color: #0099fa;
+}
+
+.tabs .tab a {
+  background-color: rgba(232, 232, 232, 0.469);
+  color: rgb(125, 125, 125)!important;
+  font-size: 0.8vw!important;
+  padding:0!important;
+}
+
+.tabs .indicator {
+  background-color: #0099fa !important;
+  width:50%!important;
+}
+
+.tab a.active {
+  background-color: #f3faff !important;
+  color: #0099fa!important;
+}
+
+.tabs .tab a.active {
+  color: #0099fa;
+}
+
+.button-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 4%;
+  width: 100%;
+}
+
+.clear-filter{
+    font-size: 0.8vw;
+}
+
+.clear-filter:hover {
+  color: #024cb7;
+  cursor: pointer;
+  font-size: 0.8vw;
+}
+
+.btn {
+  font-family: "Eina";
+  background-color: white!important;
+  color: #024cb7!important;
+  font-size: 0.8vw!important;
+}
+
+.btn:hover {
+  background-color: #024cb7!important;
+  color: white!important;
+  font-size: 0.8vw;
+}
+
+.tagify__tag__removeBtn {
+  color: #696969!important;
+}
+
+.inputs {
+  margin: 2% 0 6% 0;
+  font-family: "Eina";
+}
+
+.labels {
+  color: #024cb7;
+  font-weight: bold;
+  font-size: 0.8vw;
+}
+
+.city-div {
+  margin-top: 2%;
+}
+
+.marker-cluster-large {
+  background-color: #002f87 !important;
+  color: #002f87 !important;
+}
+
+.marker-cluster-large div {
+  background-color: #002f87 !important;
+  color: #002f87 !important;
+}
+
+.marker-cluster-medium {
+  background-color: #0099fa !important;
+  color: #0099fa !important;
+}
+
+.marker-cluster-medium div {
+  background-color: #0099fa !important;
+  color: #0099fa !important;
+}
+
+.marker-cluster-small {
+  background-color: #f7d031 !important;
+  color: #f7d031 !important;
+}
+
+.marker-cluster-small div {
+  background-color: #f7d031 !important;
+  color: #f7d031 !important;
+}
+
+.tagify {
+  --tag-hover: #e5e5e5;
+  --tag-pad: 0.2em 1em;
+}
+
+.download-template-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2%;
+  width: 100%;
+  height: 4vh;
+}
+
+.download-link {
+  color: #002f87;
+  text-decoration: underline;
+  text-decoration-thickness: from-font;
+  text-underline-offset: 2px;
+}
+
+.span-explanations {
+  color: #696969;
+}
+
+.fil-form {
+  margin: 2% 0 10% 0;
+}
+
+
+/*////////////////////// media queries //////////////////////////*/
+
+@media only screen and (min-width: 1200px){
+
+    .tab{
+        width:12vw;
+    }
+
+}
