@@ -3,6 +3,10 @@
   src: url("./fonts/eina/Eina02-Light.ttf");
 }
 
+*{
+  font-family: "Eina"!important;
+}
+
 body {
   margin: 0px;
   padding: 0px;
