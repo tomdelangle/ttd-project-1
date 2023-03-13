@@ -5,389 +5,217 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- leaflet css -->
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
-    />
+    <!-- stylesheet -->
+    <link rel="stylesheet" href="style1.css" />
+    <link rel="stylesheet" href="style2.css" />
 
-    <!-- markercluster  -->
+    <!-- TTD screen data  -->
+    <script src="ttd-screens.js"></script>
+
+    <!-- API key openCage  -->
+    <script src="opencageapikey.js"></script>
+
+    <!-- Leaflet.css -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"/>
+
+    <!-- Leaflet : markercluster.css  -->
     <link rel="stylesheet" href="./dist/MarkerCluster.css" />
     <link rel="stylesheet" href="./dist/MarkerCluster.Default.css" />
 
-    <!-- Tagify -->
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.polyfills.min.js"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"
-      rel="stylesheet"
-      type="text/css"
-    />
+    <!-- Leaflet.js  -->
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
 
-    <!-- Materialize -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
-    />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <!-- Leaflet : markercluster.js  -->
+    <script src="./dist/leaflet.markercluster.js"></script>
 
-    <!-- Papaparse -->
+    <!-- turf.js -->
+    <script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
+
+    <!-- Papaparse.js -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 
     <title>DOOH planning tool</title>
-    <style>
-      body {
-        margin: 0px;
-        padding: 0px;
-      }
-
-      #overlay {
-        position: absolute;
-        z-index: 1000;
-        background: rgba(255, 255, 255, 0.7);
-        padding: 10px;
-        left: 0;
-        margin: 10px;
-        border-radius: 10px;
-        min-height: 200px;
-        width: 30%;
-      }
-
-      .ui-div {
-        display: flex;
-        flex-direction: column;
-      }
-
-      .tab {
-        width: 50%;
-      }
-
-      #map {
-        width: 100%;
-        height: 100vh;
-      }
-    </style>
   </head>
   <body>
-    <div id="overlay">
-      <ul class="tabs">
-        <li class="tab col s6">
-          <a class="active" href="#tab1" onclick="clearFiltersPlaces()"
-            >Places</a
-          >
-        </li>
-        <li class="tab col s6">
-          <a href="#tab2" onclick="clearFiltersGPS()">GPS list</a>
-        </li>
-      </ul>
-      <div id="tab1" class="col s12">
-        <div class="city-div ui-div">
-          <label for="city-input">City</label>
-          <input id="city-input" name="city-input" type="text" />
+  
+    <div class="overlay">
+      <div class="global-container">
+        <div class="upload-loader">
+          <div class="white-modal">
+            <span class="blue-navy-bar loader-bars"></span>
+            <span class="blue-sky-bar loader-bars"></span>
+            <span class="yellow-sunshine-bar loader-bars"></span>
+            <span class="yellow-sunset-bar loader-bars"></span>
+          </div>
         </div>
-        <div class="SSP-div ui-div">
-          <label for="SSP-input">SSP</label>
-          <input id="SSP-input" name="SSP-input" type="text" />
+        <div class="title-and-filter">
+          <span class="span-title">DOOH Planning tool</span>
+          <span class="clear-filter-button">Clear filters</span>
         </div>
-        <button id="validate-button" onclick="validateQuery()" disabled>
-          Validate Query
-        </button>
-        <button id="clear-filter-button" onclick="clearGeoJSONPlacesFilters()">
-          Clear filters
-        </button>
+        <div class="accordion">
+          <div class="accordion-item active">
+            <div class="accordion-title"><img class="chevron-accordion" src="./img/chevron right blue.svg" alt="Texte alternatif pour l'image">
+              <span class="title-element-accordion">List targeting</span></div>
+            <div class="accordion-content">
+              <div class="accordion-1">
+                <div class="file-input-container">
+                  <label for="file-type-select" class="input-label">File type</label>
+                  <div class="file-type-dropdown">
+                    <div name="file-type-select" id="" class="file-type-input">
+                      <span class="file-input-selected">CSV - Radius - lat/long</span>
+                      <svg class="file-input-chevron-img" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="file-chevron-svg-path" fill-rule="evenodd" clip-rule="evenodd" d="M0.183058 2.05806C0.427136 1.81398 0.822864 1.81398 1.06694 2.05806L5 5.99112L8.93306 2.05806C9.17714 1.81398 9.57286 1.81398 9.81694 2.05806C10.061 2.30214 10.061 2.69786 9.81694 2.94194L5.44194 7.31694C5.19786 7.56102 4.80214 7.56102 4.55806 7.31694L0.183058 2.94194C-0.0610194 2.69786 -0.0610194 2.30214 0.183058 2.05806Z" fill="#627592"/>
+                        </svg>
+                    </div>
+                    <ul class="file-input-options">
+                      <li class="file-select-options option-active">CSV - Radius - lat/long</li>
+                      <li class="file-select-options">CSV - Radius - adresses</li>
+                      <li class="file-select-options">CSV - Polygons</li>
+                      <li class="file-select-options">CSV - IRIS (France only)</li>
+                      <li class="file-select-options">Geojson - Polygons</li>
+                      <li class="file-select-options">Geojson - MultiPolygons</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="template-to-download">
+                  <div class="download-template"><span>Download the import template below to get started.</span></div>
+                  <div class="export-template">
+                  <span class="export-text-Link">Download template</span>
+                  <img src="./img/export-logo.svg"class="export-logo">
+                  </div>
+                </div>
+                <div class="file-upload" draggable="true">
+                  <input type="file" class="upload-input" id="file-input">
+                  <label class="upload-btn" for="file-input">CHOOSE FILE</label>
+                  <span class="click-or-drag">Click or drag your 'CSV - Radius - lat/long' file</span>
+                  <span class="only-import">You can import only one file</span>
+                  <div class="error-container">
+                    <div class="error-logo-container">
+                      <div class="img-error"><img src="./img/error.svg" alt="" class="error-logo"></div>
+                    </div>
+                    <div class="error-message-container">
+                      <span class="error-message"></span>
+                    </div>
+                  </div>
+                  <div class="uploaded-file-section">
+                    <span class="uploaded-file-title">FILE</span>
+                    <div class="uploaded-file-informations">
+                      <div class="success-container">
+                        <div class="img-success"><img src="./img/sucess.svg" alt="" class="success-logo"></div>
+                      </div>
+                      <div class="file-name-delete-cross-container">
+                        <span class="uploaded-file-name"></span>
+                        <img src="./img/close_btn.svg" alt="" class="delete-file">
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-title"><img class="chevron-accordion" src="./img/chevron right blue.svg" alt="Texte alternatif pour l'image"><span class="title-element-accordion">Places</span></div>
+            <div class="accordion-content">
+              <div class="accordion-2">
+                <div class="places-filter">
+                  <label for="places-input" class="input-label">Country/Region/City/ZIP code</label>
+                  <input name="places-input" id="places-input" class="classic-input" placeholder="Enter places..."></select>
+                  <div id="places-input-options" class="input-options"></div>
+                  <div id="places-pills" class="pills-container"></div>
+                </div>
+                <div class="venue-type-filter">
+                  <label for="venue-type-input" class="input-label">Venue type</label>
+                  <input name="venue-type-input" id="venue-type-input" class="classic-input" placeholder="Enter venue types..."></select>
+                  <div id="venue-type-input-options" class="input-options"></div>
+                  <div id="venue-type-pills" class="pills-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-title"><img class="chevron-accordion" src="./img/chevron right blue.svg" alt="Texte alternatif pour l'image"><span class="title-element-accordion">Partners</span></div>
+            <div class="accordion-content">
+              <div class="accordion-3">
+                <div class="partners-filter">
+                  <label for="partners-input" class="input-label">SSP/Publisher</label>
+                  <input name="partners-input" id="partners-input" class="classic-input" placeholder="Enter partners..."></select>
+                  <div id="partners-input-options" class="input-options"></div>
+                  <div id="partners-pills" class="pills-container"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-title"><img class="chevron-accordion" src="./img/chevron right blue.svg" alt="Texte alternatif pour l'image"><span class="title-element-accordion">Prices</span></div>
+            <div class="accordion-content">
+              <div class="accordion-4">
+                <div class="prices-filter">
+                  <label for="prices-input" class="input-label">CPM ($)</label>
+                  <div class="cpm-container">
+                    <label for="min-cpm-input" class="min-cpm-label">Min</label>
+                    <input type="number" min="0" oninput="checkInput(this)" name="min-cpm-input" id="min-cpm-input" class="classic-input" placeholder="Enter price..."></select>
+                  </div>
+                  <div class="cpm-container">
+                    <label for="max-cpm-input" class="max-cpm-label">Max</label>
+                    <input type="number" min="0" oninput="checkInput(this)" name="max-cpm-input" id="max-cpm-input" class="classic-input" placeholder="Enter price..."></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <div class="accordion-title"><img class="chevron-accordion" src="./img/chevron right blue.svg" alt="Texte alternatif pour l'image"><span class="title-element-accordion">Technical specifications</span></div>
+            <div class="accordion-content">
+              <div class="accordion-5">
+                <div class="ad-type-filter">
+                  <label for="ad-type-input" class="input-label">Ad type</label>
+                  <div class="ad-type-dropdown">
+                    <div name="ad-type-select" class="ad-type-input">
+                      <span class="ad-type-input-selected">Select ad type</span>
+                      <svg class="ad-type-input-chevron-img" viewBox="0 0 10 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path class="ad-type-chevron-svg-path" fill-rule="evenodd" clip-rule="evenodd" d="M0.183058 2.05806C0.427136 1.81398 0.822864 1.81398 1.06694 2.05806L5 5.99112L8.93306 2.05806C9.17714 1.81398 9.57286 1.81398 9.81694 2.05806C10.061 2.30214 10.061 2.69786 9.81694 2.94194L5.44194 7.31694C5.19786 7.56102 4.80214 7.56102 4.55806 7.31694L0.183058 2.94194C-0.0610194 2.69786 -0.0610194 2.30214 0.183058 2.05806Z" fill="#627592"/>
+                        </svg>
+                    </div>
+                    <ul class="ad-type-input-options">
+                      <li class="ad-type-select-options option-active" style="font-weight:lighter"><input type="checkbox" class="video-checkbox checkbox">Video</li>
+                      <li class="ad-type-select-options"><input type="checkbox" class="static-checkbox checkbox">Static</li>
+                      <li class="ad-type-select-options"><input type="checkbox" class="html-checkbox checkbox">HTML5</li>
+                    </ul>
+                  </div>
+                </div>
+                <div class="specifications-filter">
+                  <label for="specifications-input" class="input-label">Screen width & height</label>
+                  <input name="specifications-input" id="specifications-input" class="classic-input" placeholder="Enter width and height..."></select>
+                  <div id="specifications-input-options" class="input-options"></div>
+                  <div id="specifications-pills" class="pills-container"></div>
+                </div>
+                <div class="length-filter">
+                  <label for="length-input" class="input-label">Spot length (seconds)</label>
+                  <input type="number" min="0" oninput="checkInput(this)" name="length-input" id="length-input" class="classic-input" placeholder="Enter spot length..."></select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="tab2" class="col s12">
-        <form>
-          <input type="file" id="fileInput" accept=".csv" />
-          <button type="submit" id="submit-gps">Submit</button>
-        </form>
-        <button id="clear-filter-button" onclick="clearGPSLayer()">
-          Clear filters
-        </button>
+    </div>
+    <div class="forecast-overlay">
+      <div class="screens-section forecast-section">
+        <img src="./img/screens.svg" alt="" class="screens-img">
+        <span class="screens-number"></span>
       </div>
+      <div class="cpm-section forecast-section">
+        <img src="./img/cpm.svg" alt="" class="cpm-img">
+        <span class="cpm-number">9.05$ CPM</span>
+      </div>
+      <div class="contacts-section forecast-section">
+        <img src="./img/contacts.svg" alt="" class="contacts-img">
+        <span class="contacts-number">-- contacts</span>
+      </div>
+      <button class="export-button">EXPORT DATA</button>
     </div>
     <div id="map"></div>
   </body>
+  <script src="script.js"></script>
 </html>
-
-<!-- geojson data  -->
-<script src="./data.js"></script>
-
-<!-- leaflet js  -->
-<script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"></script>
-
-<!-- markercluster  -->
-<script src="./dist/leaflet.markercluster.js"></script>
-
-<!-- turf.js -->
-<script src="https://unpkg.com/@turf/turf@6/turf.min.js"></script>
-
-<script>
-  document.addEventListener("DOMContentLoaded", function () {
-    let tabs = document.querySelectorAll(".tabs");
-    M.Tabs.init(tabs);
-  });
-
-  var cityArray = [];
-  var SSPArray = [];
-
-  var cityInput = document.getElementById("city-input");
-  var SSPInput = document.getElementById("SSP-input");
-  var validateButton = document.getElementById("validate-button");
-
-  data["features"].forEach((element) => {
-    cityArray.push(element.properties.City);
-    SSPArray.push(element.properties.SSP);
-  });
-
-  var uniqueCityArray = [...new Set(cityArray)];
-  var uniqueSSPArray = [...new Set(SSPArray)];
-
-  var cityTagify = createTagify(cityInput, uniqueCityArray);
-  var SSPTagify = createTagify(SSPInput, uniqueSSPArray);
-
-  const map = L.map("map", { zoomControl: false }).setView(
-    [47.08281526433862, 2.0891906387845722],
-    6
-  );
-
-  const osm = L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    { maxZoom: 19 }
-  ).addTo(map);
-
-  const geojsonMarkerOptions = {
-    radius: 8,
-    fillColor: "#ff7800",
-    color: "#000",
-    weight: 1,
-    opacity: 1,
-    fillOpacity: 0.8,
-  };
-
-  const geoJsonLayer = L.geoJSON(data, {
-    onEachFeature: popUpStyle,
-    pointToLayer: pointToLayer,
-  });
-  const clusterMarkers = L.markerClusterGroup().addLayer(geoJsonLayer);
-
-  var layerDataFromSheet = L.layerGroup();
-
-  map.addLayer(clusterMarkers);
-  map.addLayer(layerDataFromSheet);
-
-  function popUpStyle(feature, layer) {
-    const popupContent =
-      '<h4 class = "text-primary">Street Light</h4>' +
-      '<div class="container"><table class="table table-striped">' +
-      "<thead><tr><th>Properties</th><th>Value</th></tr></thead>" +
-      "<tbody><tr><td> Name </td><td>" +
-      feature.properties.Name +
-      "</td></tr>" +
-      "<tr><td>Elevation </td><td>" +
-      feature.properties.ele +
-      "</td></tr>" +
-      "<tr><td> Power (watt) </td><td>" +
-      feature.properties.Power_Watt +
-      "</td></tr>" +
-      "<tr><td> Pole Height </td><td>" +
-      feature.properties.pole_hgt +
-      "</td></tr>" +
-      "<tr><td> Time </td><td>" +
-      feature.properties.time +
-      "</td></tr>";
-
-    layer.bindPopup(popupContent);
-  }
-
-  function pointToLayer(feature, latlng) {
-    return L.circleMarker(latlng, geojsonMarkerOptions);
-  }
-
-  function createTagify(inputToTagify, whitelistToSearch) {
-    var tagify = new Tagify(inputToTagify, {
-      whitelist: whitelistToSearch,
-      dropdown: {
-        classname: "color-blue",
-        enabled: 1, // show the dropdown immediately on focus
-        position: "all", // place the dropdown near the typed text
-        closeOnSelect: true, // keep the dropdown open after selecting a suggestion
-      },
-    });
-
-    return tagify;
-  }
-
-  function validateQuery() {
-    clusterMarkers.removeLayer(geoJsonLayer);
-
-    if (cityTagify.value != "") {
-      console.log("in the city");
-
-      for (i = 0; i < cityTagify.value.length; i++) {
-        geoJsonLayer.eachLayer(function (layer) {
-          if (
-            layer.feature.properties.City.toLowerCase() ==
-            cityTagify.value[i].value.toLowerCase()
-          ) {
-            clusterMarkers.addLayer(layer);
-          }
-        });
-      }
-    } else {
-      clusterMarkers.addLayer(geoJsonLayer);
-    }
-
-    if (SSPTagify.value != "") {
-      for (i = 0; i < SSPTagify.value.length; i++) {
-        clusterMarkers.eachLayer(function (layer) {
-          console.log(layer);
-
-          if (
-            layer.feature.properties.SSP.toLowerCase() !==
-            SSPTagify.value[i].value.toLowerCase()
-          ) {
-            clusterMarkers.removeLayer(layer);
-          }
-        });
-      }
-    }
-  }
-
-  function clearFiltersPlaces() {
-    clusterMarkers.addLayer(geoJsonLayer);
-    layerDataFromSheet.eachLayer(function (layer) {
-      layerDataFromSheet.removeLayer(layer);
-    });
-    fileInput.value = "";
-    map.setView([47.08281526433862, 2.0891906387845722], 6);
-  }
-
-  function clearFiltersGPS() {
-    clusterMarkers.removeLayer(geoJsonLayer);
-    cityTagify.removeAllTags();
-    SSPTagify.removeAllTags();
-    map.setView([47.08281526433862, 2.0891906387845722], 6);
-  }
-
-  function clearGeoJSONPlacesFilters() {
-    clusterMarkers.removeLayer(geoJsonLayer);
-    clusterMarkers.addLayer(geoJsonLayer);
-    cityTagify.removeAllTags();
-    SSPTagify.removeAllTags();
-    map.setView([47.08281526433862, 2.0891906387845722], 6);
-  }
-
-  function clearGPSLayer() {
-    layerDataFromSheet.eachLayer(function (layer) {
-      layerDataFromSheet.removeLayer(layer);
-    });
-    fileInput.value = "";
-    map.setView([47.08281526433862, 2.0891906387845722], 6);
-  }
-
-  cityTagify.on("change", checkInputs);
-  SSPTagify.on("change", checkInputs);
-
-  function checkInputs() {
-    if (cityTagify.value != "" || SSPTagify.value != "") {
-      validateButton.disabled = false;
-    } else if (cityTagify.value == "" && SSPTagify.value == "") {
-      validateButton.disabled = true;
-    }
-  }
-
-  const submitGPS = document.getElementById("submit-gps");
-  const fileInput = document.getElementById("fileInput");
-
-  submitGPS.addEventListener("click", function () {
-    layerDataFromSheet.eachLayer(function (layer) {
-      layerDataFromSheet.removeLayer(layer);
-    });
-
-    map.setView([47.08281526433862, 2.0891906387845722], 6);
-
-    const file = fileInput.files[0];
-
-    !file && alert("Please select a file.");
-
-    const reader = new FileReader();
-
-    reader.readAsText(file);
-
-    reader.onload = function () {
-      const csv = reader.result;
-
-      var test = Papa.parse(csv, {
-        header: true,
-        dynamicTyping: true,
-      });
-
-      var dataFromSheet = test.data;
-
-      /*
-        var geojson = {
-
-            type: "FeatureCollection",
-            features: test.data.map(function (point) {
-                
-                latLongFromDataSheet.push(point.coordinates)
-                
-                return {
-                    type: "Feature",
-                    geometry: {
-                        type: "Point",
-                        coordinates: [point.Longitude, point.Latitude],
-                    },
-                    properties: {"Radius (meters)": point["Radius (meters)"]}
-                };
-            }),
-        };
-        */
-
-      var turfDistanceOptions = { units: "meters" };
-
-      dataFromSheet.forEach((point) => {
-        L.marker([point.Latitude, point.Longitude]).addTo(layerDataFromSheet);
-        L.circle([point.Latitude, point.Longitude], {
-          radius: point["Radius (meters)"],
-          fillColor: "blue",
-          fillOpacity: 0.1,
-        }).addTo(layerDataFromSheet);
-
-        var pointTurfFrom = turf.point([point.Latitude, point.Longitude]);
-
-        var cluster = L.markerClusterGroup();
-
-        var addedPoints = new Set();
-
-        geoJsonLayer.eachLayer(function (layer) {
-          var pointTurfTo = turf.point([
-            layer.feature.geometry.coordinates[1],
-            layer.feature.geometry.coordinates[0],
-          ]);
-
-          var distance = turf.distance(
-            pointTurfFrom,
-            pointTurfTo,
-            turfDistanceOptions
-          );
-
-          if (distance < point["Radius (meters)"] && !addedPoints.has(layer)) {
-            cluster.addLayer(layer);
-            addedPoints.add(layer);
-          }
-        });
-
-        layerDataFromSheet.addLayer(cluster);
-      });
-    };
-
-    submitGPS.disabled = true;
-  });
-
-  fileInput.addEventListener("change", function () {
-    submitGPS.disabled = false;
-  });
-</script>
